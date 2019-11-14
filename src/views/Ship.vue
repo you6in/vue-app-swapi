@@ -1,5 +1,18 @@
 <template>
-    <h2></h2>
+    <div>
+        <b-alert v-model="error.status" variant="danger" dismissible>
+            {{error.message}}
+        </b-alert>
+        <div class="loading" v-if="loading">Loading...</div>
+        <b-col v-else>
+            <h1>{{ship.name}}</h1>
+            <p><b>model</b> - {{ship.model}}</p>
+            <p><b>manufacturer</b> - {{ship.manufacturer}}</p>
+            <p><b>passengers</b> - {{ship.passengers}}</p>
+            <p><b>starship class</b> - {{ship.starship_class}}</p>
+        </b-col>
+    </div>
+
 </template>
 
 <script>
@@ -7,18 +20,27 @@
         name: "Ship",
         data: () => ({
             loading: true,
-            ship: null
+            ship: null,
+            error: {
+                status: false,
+                message : ''
+            }
         }),
         async mounted() {
-            const name = this.$route.params.name
-            await this.$store.dispatch('getShips')
-            const ships = this.$store.getters.allShips
-            console.log(ships)
-            this.ship = ships.find(s => s.name === name )
+            try {
+                const name = this.$route.params.name
+                await this.$store.dispatch('getShips')
+                console.log('getships')
+                this.ship = this.$store.getters.allShips.find(s => s.name === name)
+                this.loading = false
+            } catch (e) {
+                this.error.message = e.message
+                this.error.status = true
+                console.log(e)
+            }
 
-
-            this.loading = false
         }
+
     }
 </script>
 
